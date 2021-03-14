@@ -1,7 +1,7 @@
 const addNumber = function (evt) {
     let value = evt.target.textContent
 
-    if (digitPanel.textContent === '0') {
+    if (digitPanel.textContent === '0' || isResolved()) {
         digitPanel.textContent = value
     } else {
         digitPanel.textContent += value
@@ -10,10 +10,9 @@ const addNumber = function (evt) {
 
 const processOperator = function (evt) {
     let value = evt.target.textContent
-    let hasPreviousOperation = new RegExp(escapedOperators.join("|")).test(digitPanel.textContent)
-    let isResolved = digitPanel.textContent.includes('=')
+    let hasPreviousOp = hasPreviousOperation()
 
-    if(isResolved){
+    if(isResolved()){
         digitPanel.textContent = '0'
         return;
     }
@@ -26,16 +25,16 @@ const processOperator = function (evt) {
             digitPanel.textContent += '.'
             return;
         case '=':
-            if(hasPreviousOperation){
+            if(hasPreviousOp){
                 let options = digitPanel.textContent.split(' ')
-                if(options.length === 3){
+                if(options.length === 3 && options[2] !== ''){
                     showResult(options[0], options[2], options[1])
                 }
             }
             return;
     }
 
-    if (!hasPreviousOperation &&
+    if (!hasPreviousOp &&
         digitPanel.textContent !== '0') {
         digitPanel.textContent += ' ' + value + ' '
     }
@@ -66,6 +65,13 @@ document.querySelectorAll('.operator').forEach(el => el.addEventListener('click'
 const operators = ['*', '-', '+', '/']
 const escapedOperators = operators.map(o => o.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'))
 
+function hasPreviousOperation(){
+    return new RegExp(escapedOperators.join("|")).test(digitPanel.textContent)
+}
+
+function isResolved(){
+    return digitPanel.textContent.includes('=')
+}
 
 
 
